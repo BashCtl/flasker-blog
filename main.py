@@ -118,6 +118,18 @@ def create_post():
     return render_template("create_post.html", form=form)
 
 
+@app.route("/posts")
+def show_posts():
+    posts = Post.query.order_by(Post.created_at)
+    return render_template("posts.html", posts=posts)
+
+
+@app.route("/posts/<int:post_id>")
+def get_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template("post.html", post=post)
+
+
 # Update Database Record
 @app.route("/users/<int:user_id>", methods=["GET", "POST"])
 def update_user(user_id):
