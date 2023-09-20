@@ -5,9 +5,10 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.widgets import TextArea
 from dotenv import load_dotenv
 from os import getenv
-from datetime import datetime
+from datetime import datetime, date
 
 load_dotenv()
 
@@ -20,6 +21,12 @@ app.config["SECRET_KEY"] = getenv("SECRET_KEY")
 # Initialize the database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
+# Rest Json example
+@app.route("/date")
+def get_current_date():
+    return {"Date": date.today()}
 
 
 # Create Model
@@ -47,6 +54,17 @@ class User(db.Model):
         return f"User(id={self.id}, name={self.name}, email={self.email})"
 
 
+# Create a Blog Post model
+class Post(db.Model):
+    __tablename__ = "posts"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    slug = db.Column(db.String(255))
+
+
 # Create a Form Class
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
@@ -62,6 +80,42 @@ class UserForm(FlaskForm):
 class NameForm(FlaskForm):
     name = StringField("What's Your Name", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+
+# Password Form
+class PasswordForm(FlaskForm):
+    email = EmailField("What' Your Email.", validators=[DataRequired()])
+    password = PasswordField("What's Your Password.", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Create Post Form
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Author", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Post page
+@app.route("/add-post", methods=["GET", "POST"])
+def create_post():
+    form = PostForm()
+
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data,
+                    author=form.author.data, slug=form.slug.data)
+        form.title.data = ""
+        form.content.data = ""
+        form.author.data = ""
+        form.slug.data = ""
+
+        db.session.add(post)
+        db.session.commit()
+
+        flash("Blog Post Submitted Successfully!", category="success")
+    return render_template("create_post.html", form=form)
 
 
 # Update Database Record
@@ -146,6 +200,29 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_internal_server_error(e):
     return render_template("500.html"), 500
+
+
+# Create Password Test Page
+@app.route("/test_pw", methods=["GET", "POST"])
+def test_pw():
+    email = None
+    password = None
+    user_check = None
+    passed = None
+    form = PasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        form.email.data = ""
+        form.password.data = ""
+
+        user_check = User.query.filter_by(email=email).first()
+        # Check Hashed Password
+        passed = check_password_hash(user_check.password_hash, password)
+
+        flash("Form Submitted Successfully.", category="success")
+    return render_template("test_pw.html", form=form, email=email,
+                           password=password, user_check=user_check, passed=passed)
 
 
 # Create Name Page
