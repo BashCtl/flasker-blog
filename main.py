@@ -120,6 +120,7 @@ class PostForm(FlaskForm):
 
 # Post page
 @app.route("/add-post", methods=["GET", "POST"])
+@login_required
 def create_post():
     form = PostForm()
 
@@ -151,6 +152,7 @@ def get_post(post_id):
 
 
 @app.route("/posts/edit/<int:post_id>", methods=["GET", "POST"])
+@login_required
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
     form = PostForm()
