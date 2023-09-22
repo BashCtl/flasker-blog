@@ -10,7 +10,6 @@ from wtforms.widgets import TextArea
 from dotenv import load_dotenv
 from os import getenv
 from datetime import datetime, date
-from webforms import UserForm, NameForm, PostForm, LoginForm, PasswordForm
 
 load_dotenv()
 
@@ -39,6 +38,84 @@ def load_user(user_id):
 @app.route("/date")
 def get_current_date():
     return {"Date": date.today()}
+
+
+# Create Model
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(80), nullable=False, unique=True)
+    favorite_color = db.Column(db.String(120))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    password_hash = db.Column(db.String(128))
+
+    @property
+    def password(self):
+        raise AttributeError("Password is not a readable.")
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f"User(id={self.id}, name={self.name}, email={self.email})"
+
+
+# Create a Blog Post model
+class Post(db.Model):
+    __tablename__ = "posts"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    slug = db.Column(db.String(255))
+
+
+# Create a Form Class
+class UserForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    username = StringField("Username", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired()])
+    favorite_color = StringField("Favorite Color")
+    password = PasswordField("Password", validators=[DataRequired(),
+                                                     EqualTo("password_confirm", message="Passwords Must Match!")])
+    password_confirm = PasswordField("Confirm Password", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Create a Form Class
+class NameForm(FlaskForm):
+    name = StringField("What's Your Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Password Form
+class PasswordForm(FlaskForm):
+    email = EmailField("What' Your Email.", validators=[DataRequired()])
+    password = PasswordField("What's Your Password.", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Login Form
+class LoginForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Create Post Form
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Author", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
 # Post page
@@ -278,42 +355,6 @@ def name_page():
         form.name.data = ""
         flash("Form Submitted Successfully.", category="success")
     return render_template("name.html", name=name, form=form)
-
-# Create Model
-class User(db.Model, UserMixin):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(80), nullable=False, unique=True)
-    favorite_color = db.Column(db.String(120))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow())
-    password_hash = db.Column(db.String(128))
-
-    @property
-    def password(self):
-        raise AttributeError("Password is not a readable.")
-
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return f"User(id={self.id}, name={self.name}, email={self.email})"
-
-
-# Create a Blog Post model
-class Post(db.Model):
-    __tablename__ = "posts"
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.Text)
-    author = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow())
-    slug = db.Column(db.String(255))
 
 
 if __name__ == "__main__":
