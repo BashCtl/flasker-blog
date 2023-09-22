@@ -33,6 +33,9 @@
         {{ form.name.label(class='from-label') }}
         {{ form.name(class='form-control', value=user_to_update.name) }}
         <br>
+        {{ form.username.label(class='from-label') }}
+        {{ form.username(class='form-control', value=user_to_update.username) }}
+        <br>
         {{ form.email.label(class='from-label') }}
         {{ form.email(class='form-control', value=user_to_update.email) }}
         <br>

@@ -269,6 +269,25 @@ def login():
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
+    form = UserForm()
+    user_id = current_user.id
+    user_to_update = User.query.get_or_404(user_id)
+    if request.method == "POST":
+        user_to_update.name = request.form["name"]
+        user_to_update.username = request.form["username"]
+        user_to_update.email = request.form["email"]
+        user_to_update.favorite_color = request.form["favorite_color"]
+        try:
+            db.session.commit()
+            flash("User Updated Successfully!", category="success")
+            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
+        except:
+            flash("Error. Something went wrong during update!", category="success")
+            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
+    else:
+        # form.name.data = user_to_update.name
+        # form.email.data = user_to_update.email
+        return render_template("dashboard.html", form=form, user_to_update=user_to_update)
     return render_template("dashboard.html")
 
 
