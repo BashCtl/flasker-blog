@@ -17,5 +17,11 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     from src.blueprints.users import users
+    from src.blueprints.posts import posts
+    from src.blueprints.errors import errors
 
     app.register_blueprint(users)
+    app.register_blueprint(posts)
+    app.register_blueprint(errors)
+
+    return app

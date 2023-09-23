@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from src import db
 from src.models.user_model import User
-from src.forms.webforms import UserForm, LoginForm
+from src.forms.webforms import UserForm, LoginForm, NameForm
 
 users = Blueprint("users", __name__)
 
@@ -19,7 +19,7 @@ def login():
             if check_password_hash(user.password_hash, form.password.data):
                 login_user(user)
                 flash("Login Successful.", category="success")
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("users.dashboard"))
             else:
                 flash("Wrong Password - Try Again!", category="warning")
         else:
@@ -120,4 +120,19 @@ def dashboard():
 def logout():
     logout_user()
     flash("You Have Been Logged Out!", category="success")
-    return redirect(url_for("login"))
+    return redirect(url_for("users.login"))
+
+@users.route("/user/<name>")
+def user(name):
+    return render_template("user.html", user_name=name)
+
+
+@users.route("/name", methods=["GET", "POST"])
+def name_page():
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ""
+        flash("Form Submitted Successfully.", category="success")
+    return render_template("name.html", name=name, form=form)
