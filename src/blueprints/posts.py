@@ -89,7 +89,7 @@ def search():
         searched = form.searched.data
         posts = posts.filter(Post.content.like(f"%{searched}%"))
         posts = posts.order_by(Post.title).all()
-    return render_template("search.html", form=form, searched=searched,posts=posts)
+    return render_template("search.html", form=form, searched=searched, posts=posts)
 
 
 @posts.route("/")

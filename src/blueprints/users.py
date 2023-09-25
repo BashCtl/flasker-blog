@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from src import db, bcrypt
 from src.models.user_model import User
-from src.forms.webforms import UserForm, LoginForm, NameForm
+from src.forms.webforms import UserForm, LoginForm, NameForm, SearchForm
 
 users = Blueprint("users", __name__)
 
@@ -90,6 +90,21 @@ def delete_user(user_id):
     users = User.query.order_by(User.created_at)
     return render_template("add_user.html", form=form, name=name, users=users)
 
+
+@users.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
+
+
+@users.route("/admin")
+@login_required
+def admin():
+    if current_user.is_admin:
+        return render_template("admin.html")
+    return render_template("403.html")
+
+
 @users.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
@@ -123,6 +138,7 @@ def logout():
     flash("You Have Been Logged Out!", category="success")
     return redirect(url_for("users.login"))
 
+
 @users.route("/user/<name>")
 def user(name):
     return render_template("user.html", user_name=name)
@@ -137,3 +153,4 @@ def name_page():
         form.name.data = ""
         flash("Form Submitted Successfully.", category="success")
     return render_template("name.html", name=name, form=form)
+

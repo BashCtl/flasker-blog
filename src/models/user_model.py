@@ -18,6 +18,7 @@ class User(db.Model, UserMixin):
     favorite_color = db.Column(db.String(120))
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
     password_hash = db.Column(db.String(128))
+    is_admin= db.Column(db.Boolean,default=False)
     posts = db.relationship("Post", backref="user")
 
     @property
