@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for, abort, r
 from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src import db
+from src import db, bcrypt
 from src.models.user_model import User
 from src.forms.webforms import UserForm, LoginForm, NameForm
 
@@ -16,7 +16,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
             # check password hash
-            if check_password_hash(user.password_hash, form.password.data):
+            if bcrypt.check_password_hash(user.password_hash, form.password.data):
                 login_user(user)
                 flash("Login Successful.", category="success")
                 return redirect(url_for("users.dashboard"))
@@ -34,7 +34,7 @@ def add_user():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
-            hashed_pw = generate_password_hash(form.password.data, "sha256")
+            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
             user = User(name=form.name.data, username=form.username.data, email=form.email.data,
                         favorite_color=form.favorite_color.data, password_hash=hashed_pw)
             db.session.add(user)

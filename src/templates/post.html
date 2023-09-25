@@ -16,12 +16,14 @@
 <br>
 <div class="shadow p-3 mb-5 bg-body rounded">
     <h2>{{ post.title }}</h2>
-    <small>By: {{ post.author }}<br>
+    <small>By: {{ post.user.name }}<br>
         {{ post.created_at }}</small><br><br>
     {{ post.content }}<br>
 </div>
+{% if current_user.id == post.user.id %}
 <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
 <a href="{{ url_for('posts.delete_post', post_id=post.id) }}" class="btn btn-outline-danger btn-sm">Delete Post</a>
+{% endif %}
 <a href="{{ url_for('posts.show_posts') }}" class="btn btn-outline-secondary btn-sm">Back to Blog</a>
 
 

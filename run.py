@@ -1,4 +1,4 @@
-from src import create_app
+from src import create_app, db
 
 app = create_app()
 

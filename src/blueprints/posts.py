@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, render_template, redirect, url_for
-from flask_login import login_required
+from flask_login import login_required, current_user
 from src.forms.webforms import PostForm
 from src.models.post_model import Post
 from src import db
@@ -11,13 +11,11 @@ posts = Blueprint("posts", __name__)
 @login_required
 def create_post():
     form = PostForm()
-
     if form.validate_on_submit():
         post = Post(title=form.title.data, content=form.content.data,
-                    author=form.author.data, slug=form.slug.data)
+                    user_id=current_user.id, slug=form.slug.data)
         form.title.data = ""
         form.content.data = ""
-        form.author.data = ""
         form.slug.data = ""
 
         db.session.add(post)
@@ -45,7 +43,6 @@ def edit_post(post_id):
     form = PostForm()
     if form.validate_on_submit():
         post.title = form.title.data
-        post.author = form.author.data
         post.slug = form.slug.data
         post.content = form.content.data
         db.session.add(post)
@@ -56,18 +53,20 @@ def edit_post(post_id):
     return render_template("edit_post.html", form=form, post=post)
 
 @posts.route("/posts/delete/<int:post_id>")
+@login_required
 def delete_post(post_id):
     post_to_delete = Post.query.get_or_404(post_id)
-    try:
-        db.session.delete(post_to_delete)
-        db.session.commit()
-        flash("Blog Post Was Deleted!", category="success")
-        posts = Post.query.order_by(Post.created_at)
-        return render_template("posts.html", posts=posts)
-    except:
-        flash("There was a problem deleting post.", category="warning")
-        posts = Post.query.order_by(Post.created_at)
-        return render_template("posts.html", posts=posts)
+    if current_user.id == post_to_delete.user.id:
+        try:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            flash("Blog Post Was Deleted!", category="success")
+            posts = Post.query.order_by(Post.created_at)
+            return render_template("posts.html", posts=posts)
+        except:
+            flash("There was a problem deleting post.", category="warning")
+    posts = Post.query.order_by(Post.created_at)
+    return render_template("posts.html", posts=posts)
 
 @posts.route("/")
 def index():
