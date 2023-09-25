@@ -52,6 +52,7 @@ def add_user():
 
 
 @users.route("/users/<int:user_id>", methods=["GET", "POST"])
+@login_required
 def update_user(user_id):
     form = UserForm()
     user_to_update = User.query.get_or_404(user_id)

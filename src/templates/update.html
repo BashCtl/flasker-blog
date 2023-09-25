@@ -13,18 +13,7 @@
 {% endif %}
 {% endwith %}
 
-{% if name %}
-<h1>Update User!</h1>
-<br><br><br>
-<table class="table table-hover table-bordered table-striped">
-    {% for user in users %}
-    <tr>
-        <td>{{ user.id }}. {{ user.name }} - {{ user.email }} - {{ user.favorite_color }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
-{% else %}
+{% if user_to_update.id == current_user.id %}
 <h1>Update User</h1>
 <br>
 <div class="shadow p-3 mb-5 bg-body rounded">
@@ -48,6 +37,12 @@
 </div>
 <br><br><br>
 
+{% else %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Sorry! You Can't Edit This User...</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <h2>Access Denied!</h2>
 {% endif %}
 
 {% endblock %}
