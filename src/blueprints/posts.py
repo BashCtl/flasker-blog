@@ -1,6 +1,6 @@
-from flask import Blueprint, flash, render_template, redirect, url_for
+from flask import Blueprint, flash, render_template, redirect, url_for, abort
 from flask_login import login_required, current_user
-from src.forms.webforms import PostForm
+from src.forms.webforms import PostForm, SearchForm
 from src.models.post_model import Post
 from src import db
 
@@ -36,6 +36,7 @@ def get_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template("post.html", post=post)
 
+
 @posts.route("/posts/edit/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def edit_post(post_id):
@@ -49,8 +50,12 @@ def edit_post(post_id):
         db.session.commit()
         flash("Post Has Been Updated!", category="success")
         return redirect(url_for("posts.get_post", post_id=post_id))
-    form.content.data = post.content
-    return render_template("edit_post.html", form=form, post=post)
+    if current_user.id == post.user.id:
+        form.content.data = post.content
+        return render_template("edit_post.html", form=form, post=post)
+    else:
+        return render_template("403.html")
+
 
 @posts.route("/posts/delete/<int:post_id>")
 @login_required
@@ -67,6 +72,25 @@ def delete_post(post_id):
             flash("There was a problem deleting post.", category="warning")
     posts = Post.query.order_by(Post.created_at)
     return render_template("posts.html", posts=posts)
+
+
+# Pass Stuff To Navbar
+@posts.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
+
+
+@posts.route("/search", methods=["POST"])
+def search():
+    form = SearchForm()
+    posts = Post.query
+    if form.validate_on_submit():
+        searched = form.searched.data
+        posts = posts.filter(Post.content.like(f"%{searched}%"))
+        posts = posts.order_by(Post.title).all()
+    return render_template("search.html", form=form, searched=searched,posts=posts)
+
 
 @posts.route("/")
 def index():

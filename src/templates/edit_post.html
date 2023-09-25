@@ -13,7 +13,7 @@
 {% endif %}
 {% endwith %}
 
-
+{% if current_user.id==post.user.id %}
 <br>
 <div class="shadow p-3 mb-5 bg-body rounded">
     <form method="POST">
@@ -31,6 +31,8 @@
         {{ form.submit(class='btn btn-secondary') }}
     </form>
 </div>
+
+{% endif %}
 <a href="{{ url_for('posts.show_posts') }}" class="btn btn-outline-secondary btn-sm">Back to Blog</a>
 
 {% endblock %}
