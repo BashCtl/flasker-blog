@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, render_template, redirect, url_for, abort
+from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from src.forms.webforms import PostForm, SearchForm
 from src.models.post_model import Post

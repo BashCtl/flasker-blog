@@ -29,5 +29,7 @@
         <br>
         {{ form.submit(class='btn btn-secondary') }}
     </form>
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='content') }}
 </div>
 {% endblock %}
