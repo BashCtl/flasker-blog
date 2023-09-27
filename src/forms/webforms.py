@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, ValidationError, TextAreaField
+from wtforms import StringField, SubmitField, EmailField, PasswordField, BooleanField, ValidationError, TextAreaField, FileField
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms.widgets import TextArea
 from flask_ckeditor import CKEditorField
@@ -14,6 +14,7 @@ class UserForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired(),
                                                      EqualTo("password_confirm", message="Passwords Must Match!")])
     password_confirm = PasswordField("Confirm Password", validators=[DataRequired()])
+    profile_pic = FileField("Profile Picture")
     submit = SubmitField("Submit")
 
 

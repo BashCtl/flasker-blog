@@ -75,10 +75,6 @@ def delete_post(post_id):
 
 
 # Pass Stuff To Navbar
-@posts.context_processor
-def base():
-    form = SearchForm()
-    return dict(form=form)
 
 
 @posts.route("/search", methods=["POST"])

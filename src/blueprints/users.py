@@ -1,12 +1,16 @@
-from flask import Blueprint, flash, redirect, render_template, url_for, abort, request
+from flask import Blueprint, flash, redirect, render_template, url_for, abort, request, current_app
 from flask_login import login_required, current_user, login_user, logout_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import uuid
+import os
 
 from src import db, bcrypt
 from src.models.user_model import User
 from src.forms.webforms import UserForm, LoginForm, NameForm, SearchForm
 
 users = Blueprint("users", __name__)
+
+UPLOAD_FOLDER = "static/images"
 
 
 @users.route("/login", methods=["GET", "POST"])
@@ -91,12 +95,6 @@ def delete_user(user_id):
     return render_template("add_user.html", form=form, name=name, users=users)
 
 
-@users.context_processor
-def base():
-    form = SearchForm()
-    return dict(form=form)
-
-
 @users.route("/admin")
 @login_required
 def admin():
@@ -117,8 +115,18 @@ def dashboard():
         user_to_update.email = request.form["email"]
         user_to_update.favorite_color = request.form["favorite_color"]
         user_to_update.about_author = request.form["about_author"]
+        user_to_update.profile_pic = request.files["profile_pic"]
+
+        # Grab Image Name
+        pic_filename = secure_filename(user_to_update.profile_pic.filename)
+        pic_name = f"{str(uuid.uuid1())}_{pic_filename}"
+        # Save That Image
+        saver = request.files["profile_pic"]
+        saver.save(os.path.join(current_app.config["UPLOAD_FOLDER"], pic_name))
+        user_to_update.profile_pic = pic_name
         try:
             db.session.commit()
+
             flash("User Updated Successfully!", category="success")
             return render_template("dashboard.html", form=form, user_to_update=user_to_update)
         except:
@@ -128,7 +136,6 @@ def dashboard():
         # form.name.data = user_to_update.name
         # form.email.data = user_to_update.email
         return render_template("dashboard.html", form=form, user_to_update=user_to_update)
-    return render_template("dashboard.html")
 
 
 # Logout Page
@@ -154,4 +161,3 @@ def name_page():
         form.name.data = ""
         flash("Form Submitted Successfully.", category="success")
     return render_template("name.html", name=name, form=form)
-

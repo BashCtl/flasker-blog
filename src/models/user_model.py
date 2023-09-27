@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    profile_pic = db.Column(db.String(128), nullable=True)
     posts = db.relationship("Post", backref="user")
 
     @property
