@@ -19,6 +19,9 @@
     <small>By: {{ post.user.name }}<br>
         {{ post.created_at }}</small><br><br>
     {{ post.content|safe }}<br>
+    {% if post.user.about_author %}
+    {{ post.user.about_author }}
+    {% endif %}
 </div>
 {% if current_user.id == post.user.id %}
 <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
