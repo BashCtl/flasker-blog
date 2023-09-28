@@ -61,7 +61,7 @@ def edit_post(post_id):
 @login_required
 def delete_post(post_id):
     post_to_delete = Post.query.get_or_404(post_id)
-    if current_user.id == post_to_delete.user.id:
+    if current_user.id == post_to_delete.user.id or current_user.is_admin:
         try:
             db.session.delete(post_to_delete)
             db.session.commit()

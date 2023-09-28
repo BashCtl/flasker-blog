@@ -21,7 +21,7 @@
     {{ post.created_at }}</small><br><br>
     {{ post.content|safe }}<br><br>
     <a href="{{ url_for('posts.get_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">View Post</a>
-    {% if current_user.id == post.user.id %}
+    {% if current_user.id == post.user.id or current_user.is_admin %}
     <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
     <a href="{{ url_for('posts.delete_post', post_id=post.id) }}" class="btn btn-outline-danger btn-sm">Delete Post</a>
     {% endif %}
