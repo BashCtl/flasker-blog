@@ -116,15 +116,16 @@ def dashboard():
         user_to_update.email = request.form["email"]
         user_to_update.favorite_color = request.form["favorite_color"]
         user_to_update.about_author = request.form["about_author"]
-        user_to_update.profile_pic = request.files["profile_pic"]
 
-        # Grab Image Name
-        pic_filename = secure_filename(user_to_update.profile_pic.filename)
-        pic_name = f"{str(uuid.uuid1())}_{pic_filename}"
-        # Save That Image
-        saver = request.files["profile_pic"]
-        saver.save(os.path.join(current_app.config["UPLOAD_FOLDER"], pic_name))
-        user_to_update.profile_pic = pic_name
+        if request.files["profile_pic"]:
+            user_to_update.profile_pic = request.files["profile_pic"]
+            # Grab Image Name
+            pic_filename = secure_filename(user_to_update.profile_pic.filename)
+            pic_name = f"{str(uuid.uuid1())}_{pic_filename}"
+            # Save That Image
+            saver = request.files["profile_pic"]
+            saver.save(os.path.join(current_app.config["UPLOAD_FOLDER"], pic_name))
+            user_to_update.profile_pic = pic_name
         try:
             db.session.commit()
 

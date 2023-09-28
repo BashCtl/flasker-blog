@@ -19,9 +19,29 @@
     <small>By: {{ post.user.name }}<br>
         {{ post.created_at }}</small><br><br>
     {{ post.content|safe }}<br>
-    {% if post.user.about_author %}
-    {{ post.user.about_author }}
-    {% endif %}
+    <div class="card mb-3">
+        <div class="row no-gutters">
+            <div class="col-md-2">
+                {% if post.user.profile_pic %}
+                <img src="{{ url_for('static', filename='images/'+ post.user.profile_pic) }}" width="150" align="left" alt="User Picture">
+                {% else %}
+                <img src="{{ url_for('static', filename='images/default-user.jpg') }}" width="150" align="left" alt="User Picture">
+                {% endif %}
+            </div>
+            <div class="col-md-10">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.user.name }}</h5>
+                    <p class="card-text">
+                        {% if post.user.about_author %}
+                        {{ post.user.about_author }}
+                        {% else %}
+                        Author has no about profile...
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% if current_user.id == post.user.id %}
 <a href="{{ url_for('posts.edit_post', post_id=post.id) }}" class="btn btn-outline-secondary btn-sm">Edit Post</a>
