@@ -54,16 +54,6 @@
         {{ form.submit(class='btn btn-secondary') }}
     </form>
 </div>
-<br><br><br>
-<table class="table table-hover table-bordered table-striped">
-    {% for user in users %}
-    <tr>
-        <td>{{ user.id }}.  <a href="{{ url_for('users.update_user',user_id=user.id) }}">{{ user.name }}</a>
-         - {{ user.username }} - {{ user.email }} - {{ user.favorite_color }}-
-        <a href="{{ url_for('users.delete_user',user_id=user.id) }}">Delete</a></td>
-    </tr>
-    {% endfor %}
-</table>
 {% endif %}
 
 {% endblock %}

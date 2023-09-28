@@ -40,7 +40,13 @@
                         <a href="{{ url_for('users.delete_user', user_id=current_user.id) }}" class="btn btn-danger">Delete</a>
                     </div>
                     <div class="col-4">
-                         <img src="{{ url_for('static', filename='images/default-user.jpg') }}" width="180" align="right" alt="User">
+                        {% if current_user.profile_pic %}
+                        <img src="{{ url_for('static', filename='images/'+ current_user.profile_pic) }}" width="180" align="right"
+                             alt="User">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='images/default-user.jpg') }}" width="180" align="right"
+                             alt="User">
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -79,6 +79,7 @@ def update_user(user_id):
 
 
 @users.route("/delete/<int:user_id>")
+@login_required
 def delete_user(user_id):
     name = None
     form = UserForm()
