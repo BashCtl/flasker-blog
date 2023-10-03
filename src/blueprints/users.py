@@ -23,17 +23,7 @@ def login():
 @users.route("/users/", methods=["GET", "POST"])
 def add_user():
     form = UserForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is None:
-            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-            user = User(name=form.name.data, username=form.username.data, email=form.email.data,
-                        favorite_color=form.favorite_color.data, password_hash=hashed_pw)
-            db.session.add(user)
-            db.session.commit()
-            flash("User added successfully!", category="success")
-            return redirect(url_for("users.login"))
-    return render_template("add_user.html", form=form)
+    return UserService.registration(form)
 
 
 @users.route("/users/<int:user_id>", methods=["GET", "POST"])
