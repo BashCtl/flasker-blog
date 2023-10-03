@@ -87,7 +87,3 @@ def search():
         posts = posts.order_by(Post.title).all()
     return render_template("search.html", form=form, searched=searched, posts=posts)
 
-
-@posts.route("/")
-def index():
-    return render_template("index.html")

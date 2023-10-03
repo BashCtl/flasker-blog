@@ -7,6 +7,7 @@ import os
 from src import db, bcrypt
 from src.models.user_model import User
 from src.forms.webforms import UserForm, LoginForm, NameForm, SearchForm
+from src.services.users_service import UserService
 
 users = Blueprint("users", __name__)
 
@@ -16,24 +17,11 @@ UPLOAD_FOLDER = "static/images"
 @users.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            # check password hash
-            if bcrypt.check_password_hash(user.password_hash, form.password.data):
-                login_user(user)
-                flash("Login Successful.", category="success")
-                return redirect(url_for("users.dashboard"))
-            else:
-                flash("Wrong Password - Try Again!", category="warning")
-        else:
-            flash("That User Doesn't Exist! Try Again!", category="warning")
-    return render_template("login.html", form=form)
+    return UserService.user_login(form)
 
 
 @users.route("/users/", methods=["GET", "POST"])
 def add_user():
-    name = None
     form = UserForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -44,15 +32,8 @@ def add_user():
             db.session.add(user)
             db.session.commit()
             flash("User added successfully!", category="success")
-        name = form.name.data
-        form.username.data = ""
-        form.name.data = ""
-        form.email.data = ""
-        form.favorite_color.data = ""
-        form.password.data = ""
-
-    users = User.query.order_by(User.created_at)
-    return render_template("add_user.html", form=form, name=name, users=users)
+            return redirect(url_for("users.login"))
+    return render_template("add_user.html", form=form)
 
 
 @users.route("/users/<int:user_id>", methods=["GET", "POST"])
@@ -65,35 +46,23 @@ def update_user(user_id):
         user_to_update.username = request.form["username"]
         user_to_update.email = request.form["email"]
         user_to_update.favorite_color = request.form["favorite_color"]
-        try:
-            db.session.commit()
-            flash("User Updated Successfully!", category="success")
-            return render_template("update.html", form=form, user_to_update=user_to_update)
-        except:
-            flash("Error. Something went wrong during update!", category="success")
-            return render_template("update.html", form=form, user_to_update=user_to_update)
+        db.session.commit()
+        flash("User Updated Successfully!", category="success")
+        return render_template("update.html", form=form, user_to_update=user_to_update)
     else:
-        # form.name.data = user_to_update.name
-        # form.email.data = user_to_update.email
         return render_template("update.html", form=form, user_to_update=user_to_update)
 
 
 @users.route("/delete/<int:user_id>")
 @login_required
 def delete_user(user_id):
-    name = None
-    form = UserForm()
     user_to_delete = User.query.get_or_404(user_id)
-    try:
+    if user_to_delete:
         db.session.delete(user_to_delete)
         db.session.commit()
         flash("User Deleted Successfully!!", category="success")
-        users = User.query.order_by(User.created_at)
-        return render_template("add_user.html", form=form, name=name, users=users)
-    except:
-        flash("There was a problem deleting user, try again.", category="warning")
-    users = User.query.order_by(User.created_at)
-    return render_template("add_user.html", form=form, name=name, users=users)
+        logout_user()
+        return render_template("index.html")
 
 
 @users.route("/admin")
@@ -149,17 +118,6 @@ def logout():
     return redirect(url_for("users.login"))
 
 
-@users.route("/user/<name>")
-def user(name):
-    return render_template("user.html", user_name=name)
-
-
-@users.route("/name", methods=["GET", "POST"])
-def name_page():
-    name = None
-    form = NameForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        form.name.data = ""
-        flash("Form Submitted Successfully.", category="success")
-    return render_template("name.html", name=name, form=form)
+@users.route("/")
+def index():
+    return render_template("index.html")
