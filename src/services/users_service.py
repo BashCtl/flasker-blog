@@ -1,8 +1,12 @@
-from flask import redirect, render_template, flash, url_for
-from flask_login import login_user
-from sqlalchemy import or_
-from src.models.user_model import User
+import os
+import uuid
+
+from flask import redirect, render_template, flash, url_for, request, current_app
+from flask_login import login_user, logout_user
+from werkzeug.utils import secure_filename
+
 from src import bcrypt, db
+from src.models.user_model import User
 
 
 class UserService:
@@ -38,3 +42,65 @@ class UserService:
             else:
                 flash("User already exists!", category="warning")
         return render_template("add_user.html", form=form)
+
+    @staticmethod
+    def update_user(form, user_id):
+        user_to_update = User.query.get_or_404(user_id)
+        if request.method == "POST":
+            user_to_update.name = request.form["name"]
+            user_to_update.username = request.form["username"]
+            user_to_update.email = request.form["email"]
+            user_to_update.favorite_color = request.form["favorite_color"]
+            db.session.commit()
+            flash("User Updated Successfully!", category="success")
+            return render_template("update.html", form=form, user_to_update=user_to_update)
+        else:
+            return render_template("update.html", form=form, user_to_update=user_to_update)
+
+    @staticmethod
+    def delete_user(user_id):
+        user_to_delete = User.query.get_or_404(user_id)
+        if user_to_delete:
+            db.session.delete(user_to_delete)
+            db.session.commit()
+            flash("User Deleted Successfully!!", category="success")
+            logout_user()
+            return render_template("index.html")
+
+    @staticmethod
+    def user_dashboard(form, user_id):
+        user_to_update = User.query.get_or_404(user_id)
+        if request.method == "POST":
+            UserService.__update_user_field(user_to_update)
+            UserService.__update_user_picture(user_to_update)
+            db.session.commit()
+            flash("User Updated Successfully!", category="success")
+            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
+        else:
+            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
+
+    @staticmethod
+    def user_logout():
+        logout_user()
+        flash("You Have Been Logged Out!", category="success")
+        return redirect(url_for("users.login"))
+
+    @staticmethod
+    def __update_user_field(user_to_update):
+        user_to_update.name = request.form["name"]
+        user_to_update.username = request.form["username"]
+        user_to_update.email = request.form["email"]
+        user_to_update.favorite_color = request.form["favorite_color"]
+        user_to_update.about_author = request.form["about_author"]
+
+    @staticmethod
+    def __update_user_picture(user_to_update):
+        if request.files["profile_pic"]:
+            user_to_update.profile_pic = request.files["profile_pic"]
+            # Grab Image Name
+            pic_filename = secure_filename(user_to_update.profile_pic.filename)
+            pic_name = f"{str(uuid.uuid1())}_{pic_filename}"
+            # Save That Image
+            saver = request.files["profile_pic"]
+            saver.save(os.path.join(current_app.config["UPLOAD_FOLDER"], pic_name))
+            user_to_update.profile_pic = pic_name

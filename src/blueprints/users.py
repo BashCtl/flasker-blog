@@ -1,12 +1,7 @@
-from flask import Blueprint, flash, redirect, render_template, url_for, abort, request, current_app
-from flask_login import login_required, current_user, login_user, logout_user
-from werkzeug.utils import secure_filename
-import uuid
-import os
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 
-from src import db, bcrypt
-from src.models.user_model import User
-from src.forms.webforms import UserForm, LoginForm, NameForm, SearchForm
+from src.forms.webforms import UserForm, LoginForm
 from src.services.users_service import UserService
 
 users = Blueprint("users", __name__)
@@ -30,29 +25,13 @@ def add_user():
 @login_required
 def update_user(user_id):
     form = UserForm()
-    user_to_update = User.query.get_or_404(user_id)
-    if request.method == "POST":
-        user_to_update.name = request.form["name"]
-        user_to_update.username = request.form["username"]
-        user_to_update.email = request.form["email"]
-        user_to_update.favorite_color = request.form["favorite_color"]
-        db.session.commit()
-        flash("User Updated Successfully!", category="success")
-        return render_template("update.html", form=form, user_to_update=user_to_update)
-    else:
-        return render_template("update.html", form=form, user_to_update=user_to_update)
+    return UserService.update_user(form, user_id)
 
 
 @users.route("/delete/<int:user_id>")
 @login_required
 def delete_user(user_id):
-    user_to_delete = User.query.get_or_404(user_id)
-    if user_to_delete:
-        db.session.delete(user_to_delete)
-        db.session.commit()
-        flash("User Deleted Successfully!!", category="success")
-        logout_user()
-        return render_template("index.html")
+    return UserService.delete_user(user_id)
 
 
 @users.route("/admin")
@@ -68,44 +47,14 @@ def admin():
 def dashboard():
     form = UserForm()
     user_id = current_user.id
-    user_to_update = User.query.get_or_404(user_id)
-    if request.method == "POST":
-        user_to_update.name = request.form["name"]
-        user_to_update.username = request.form["username"]
-        user_to_update.email = request.form["email"]
-        user_to_update.favorite_color = request.form["favorite_color"]
-        user_to_update.about_author = request.form["about_author"]
-
-        if request.files["profile_pic"]:
-            user_to_update.profile_pic = request.files["profile_pic"]
-            # Grab Image Name
-            pic_filename = secure_filename(user_to_update.profile_pic.filename)
-            pic_name = f"{str(uuid.uuid1())}_{pic_filename}"
-            # Save That Image
-            saver = request.files["profile_pic"]
-            saver.save(os.path.join(current_app.config["UPLOAD_FOLDER"], pic_name))
-            user_to_update.profile_pic = pic_name
-        try:
-            db.session.commit()
-
-            flash("User Updated Successfully!", category="success")
-            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
-        except:
-            flash("Error. Something went wrong during update!", category="success")
-            return render_template("dashboard.html", form=form, user_to_update=user_to_update)
-    else:
-        # form.name.data = user_to_update.name
-        # form.email.data = user_to_update.email
-        return render_template("dashboard.html", form=form, user_to_update=user_to_update)
+    return UserService.user_dashboard(form, user_id)
 
 
 # Logout Page
 @users.route("/logout", methods=["GET", "POST"])
 @login_required
 def logout():
-    logout_user()
-    flash("You Have Been Logged Out!", category="success")
-    return redirect(url_for("users.login"))
+    return UserService.user_logout()
 
 
 @users.route("/")
