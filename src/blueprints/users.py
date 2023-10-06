@@ -15,7 +15,7 @@ def login():
     return UserService.user_login(form)
 
 
-@users.route("/users/", methods=["GET", "POST"])
+@users.route("/register/", methods=["GET", "POST"])
 def add_user():
     form = UserForm()
     return UserService.registration(form)
