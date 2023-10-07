@@ -4,6 +4,7 @@ from os import getenv, getcwd
 from src import create_app, db
 from src.forms.webforms import SearchForm
 from src.models.user_model import User
+from src.models.post_model import Post
 
 
 class TestConfig:
@@ -59,3 +60,15 @@ def auth_client(client, registered_user):
                                            "password": registered_user["password"]})
     assert response.status_code == 302
     return client
+
+
+@pytest.fixture()
+def postdb(auth_client, app, registered_user):
+    with app.app_context():
+        user = User.query.filter_by(email=registered_user["email"]).first()
+        post = Post(title="Post db", content="Some awesome content",
+                    user_id=user.id, slug="slug")
+        db.session.add(post)
+        db.session.commit()
+        db.session.refresh(post)
+    return post
