@@ -86,6 +86,10 @@ class UserService:
         return redirect(url_for("users.login"))
 
     @staticmethod
+    def get_all_users():
+        return User.query.all()
+
+    @staticmethod
     def __update_user_field(user_to_update):
         user_to_update.name = request.form["name"]
         user_to_update.username = request.form["username"]

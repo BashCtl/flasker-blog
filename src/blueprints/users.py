@@ -38,7 +38,8 @@ def delete_user(user_id):
 @login_required
 def admin():
     if current_user.is_admin:
-        return render_template("admin.html")
+        all_users = UserService.get_all_users()
+        return render_template("admin.html", users=all_users)
     return render_template("403.html")
 
 

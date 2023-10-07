@@ -1,5 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Admin Area</h2>
+<table class="table shadow mt-3">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Is Admin</th>
+        <th scope="col">Can Post</th>
+        <th scope="col" class="text-center">Settings</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+    <tr>
+        <th scope="row">{{ user.id }}</th>
+        <td>{{ user.name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.is_admin }}</td>
+        <td>True</td>
+        <td class="text-center"><button type="button" class="btn btn-primary">Edit</button></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
