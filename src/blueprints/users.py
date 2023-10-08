@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 
-from src.forms.webforms import UserForm, LoginForm
+from src.forms.webforms import UserForm, LoginForm, EditUserForm
 from src.services.users_service import UserService
 
 users = Blueprint("users", __name__)
@@ -41,6 +41,12 @@ def admin():
         all_users = UserService.get_all_users()
         return render_template("admin.html", users=all_users)
     return render_template("403.html")
+
+
+@users.route("/admin/edit/<int:user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    form = EditUserForm()
+    return render_template("modal_user.html", form=form)
 
 
 @users.route("/dashboard", methods=["GET", "POST"])

@@ -23,7 +23,18 @@
         <td>{{ user.email }}</td>
         <td>{{ user.is_admin }}</td>
         <td>True</td>
-        <td class="text-center"><button type="button" class="btn btn-primary">Edit</button></td>
+        <td class="">
+            <div class="row">
+                <div class="col">
+                     <a type="button" class="btn btn-primary" href="">Edit
+            </a>
+                </div>
+                <div class="col">
+                    <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ user.id }}">Delete</a>
+                </div>
+            </div>
+            {% include 'delete_modal.html' %}
+        </td>
     </tr>
     {% endfor %}
     </tbody>

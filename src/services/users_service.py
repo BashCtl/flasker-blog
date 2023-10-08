@@ -2,7 +2,7 @@ import os
 import uuid
 
 from flask import redirect, render_template, flash, url_for, request, current_app
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 from werkzeug.utils import secure_filename
 
 from src import bcrypt, db
@@ -64,8 +64,11 @@ class UserService:
             db.session.delete(user_to_delete)
             db.session.commit()
             flash("User Deleted Successfully!!", category="success")
-            logout_user()
-            return render_template("index.html")
+            if current_user.is_admin:
+                return redirect(url_for("users.admin"))
+            else:
+                logout_user()
+                return render_template("index.html")
 
     @staticmethod
     def user_dashboard(form, user_id):
