@@ -1,5 +1,5 @@
-from flask import Blueprint
-from flask_login import login_required
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 
 from src.forms.webforms import PostForm
 from src.services.post_service import PostService
@@ -11,7 +11,9 @@ posts = Blueprint("posts", __name__)
 @login_required
 def create_post():
     form = PostForm()
-    return PostService.create_post(form)
+    if current_user.can_post:
+        return PostService.create_post(form)
+    return render_template("403.html")
 
 
 @posts.route("/posts")

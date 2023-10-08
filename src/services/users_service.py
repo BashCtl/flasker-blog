@@ -101,14 +101,17 @@ class UserService:
             user.name = form.name.data
             user.username = form.username.data
             user.email = form.email.data
+            user.can_post = request.form["can_post"] == "True"
+            user.is_admin = request.form["is_admin"] == "True"
             db.session.add(user)
             db.session.commit()
             return redirect(url_for("users.admin"))
         form.name.data = user.name
         form.username.data = user.username
         form.email.data = user.email
-        # form.can_post.data = True
-        return render_template("edit_by_admin.html", form=form, user_id=user_id)
+        form.can_post.data = user.can_post
+        form.is_admin.data = user.is_admin
+        return render_template("edit_by_admin.html", form=form, user_id=user_id, user=user)
 
     @staticmethod
     def __update_user_field(user_to_update):

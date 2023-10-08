@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    can_post = db.Column(db.Boolean, default=True)
     profile_pic = db.Column(db.String(128), nullable=True)
     posts = db.relationship("Post", backref="user")
 
@@ -35,4 +36,4 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return f"User(id={self.id}, name={self.name}, email={self.email})"
+        return f"User(id={self.id}, name={self.name}, email={self.email}, can_post={self.can_post})"

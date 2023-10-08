@@ -21,7 +21,8 @@ class EditUserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     username = StringField("Username", validators=[DataRequired()])
     email = EmailField("Email", validators=[DataRequired()])
-    can_post = RadioField("Can Post", choices=[(True, "True"), (False, "False")])
+    is_admin = RadioField("Is Admin", choices=[(True, "True"), (False, "False")],default=True, coerce=bool)
+    can_post = RadioField("Can Post", choices=[(True, "True"), (False, "False")],default=True, coerce=bool)
     submit = SubmitField("Save")
 
 
