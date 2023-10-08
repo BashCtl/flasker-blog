@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 
 from src import bcrypt, db
 from src.models.user_model import User
+from src.forms.webforms import EditUserForm
 
 
 class UserService:
@@ -91,6 +92,23 @@ class UserService:
     @staticmethod
     def get_all_users():
         return User.query.all()
+
+    @staticmethod
+    def edit_by_admin(user_id):
+        form = EditUserForm()
+        user = User.query.get_or_404(user_id)
+        if request.method == "POST":
+            user.name = form.name.data
+            user.username = form.username.data
+            user.email = form.email.data
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for("users.admin"))
+        form.name.data = user.name
+        form.username.data = user.username
+        form.email.data = user.email
+        # form.can_post.data = True
+        return render_template("edit_by_admin.html", form=form, user_id=user_id)
 
     @staticmethod
     def __update_user_field(user_to_update):

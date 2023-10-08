@@ -44,9 +44,9 @@ def admin():
 
 
 @users.route("/admin/edit/<int:user_id>", methods=["GET", "POST"])
+@login_required
 def edit_user(user_id):
-    form = EditUserForm()
-    return render_template("modal_user.html", form=form)
+    return UserService.edit_by_admin(user_id)
 
 
 @users.route("/dashboard", methods=["GET", "POST"])

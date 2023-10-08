@@ -1,8 +1,7 @@
+from flask_ckeditor import CKEditorField
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, EmailField, PasswordField, RadioField, TextAreaField, FileField
-from wtforms.validators import DataRequired, EqualTo, Length
-from wtforms.widgets import TextArea
-from flask_ckeditor import CKEditorField
+from wtforms.validators import DataRequired, EqualTo
 
 
 class UserForm(FlaskForm):
@@ -17,12 +16,14 @@ class UserForm(FlaskForm):
     profile_pic = FileField("Profile Picture")
     submit = SubmitField("Submit")
 
+
 class EditUserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     username = StringField("Username", validators=[DataRequired()])
     email = EmailField("Email", validators=[DataRequired()])
-    can_post = RadioField("Can Post", choices=[(True,"can post"), (False, "can not post")])
-    submit = SubmitField("Submit")
+    can_post = RadioField("Can Post", choices=[(True, "True"), (False, "False")])
+    submit = SubmitField("Save")
+
 
 # Create a Form Class
 class NameForm(FlaskForm):
