@@ -36,7 +36,32 @@
                         <a href="{{ url_for('users.logout') }}" class="btn btn-secondary btn-sm">Logout</a>
                         <a href="{{ url_for('users.update_user',user_id=current_user.id) }}"
                            class="btn btn-secondary btn-sm">Update Profile</a>
-                        <a href="{{ url_for('users.delete_user', user_id=current_user.id) }}" class="btn btn-danger">Delete</a>
+<!--                        <a href="{{ url_for('users.delete_user', user_id=current_user.id) }}" class="btn btn-danger">Delete</a>-->
+                         <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ current_user.id }}">Delete</a>
+                        <!-- Modal -->
+                        <div class="modal fade" id="delete{{ current_user.id }}" tabindex="-1"
+                             aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title" id="deleteModalLabel">Delete User</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h5>Are you sure you want to delete user : '{{ current_user.username }}'?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close
+                                        </button>
+                                        <form action="{{ url_for('users.delete_user', user_id=current_user.id) }}">
+                                            <a href="{{ url_for('users.delete_user', user_id=current_user.id) }}"
+                                               class="btn btn-danger">Delete</a>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-4">
                         {% if current_user.profile_pic %}
