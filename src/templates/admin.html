@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div>
+    <form action="{{ url_for('users.search_user') }}" method="POST">
+        <div class="form-group my-2" >
+             {{ form.hidden_tag() }}
+            <label for="user_search" class="form-lable">Search user: </label>
+            {{ search_form.searched(placeholder='Enter username') }}
+            {{ search_form.submit(class='btn btn-outline-secondary btn-sm', value='Search') }}
+            <a href="{{url_for('users.admin') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+        </div>
+    </form>
+</div>
 <table class="table shadow mt-3">
     <thead>
     <tr>
@@ -15,28 +26,51 @@
     </tr>
     </thead>
     <tbody>
-    {% for user in users %}
-    <tr>
-        <th scope="row">{{ user.id }}</th>
-        <td>{{ user.name }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.is_admin }}</td>
-        <td>{{ user.can_post }}</td>
-        <td class="">
-            <div class="row">
-                <div class="col">
-                     <a type="button" class="btn btn-primary" href="{{ url_for('users.edit_user', user_id=user.id) }}">Edit
-            </a>
+    {% if user %}
+        <tr>
+            <th scope="row">{{ user.id }}</th>
+            <td>{{ user.name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.is_admin }}</td>
+            <td>{{ user.can_post }}</td>
+            <td class="">
+                <div class="row">
+                    <div class="col">
+                         <a type="button" class="btn btn-primary" href="{{ url_for('users.edit_user', user_id=user.id) }}">Edit
+                </a>
+                    </div>
+                    <div class="col">
+                        <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ user.id }}">Delete</a>
+                    </div>
                 </div>
-                <div class="col">
-                    <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ user.id }}">Delete</a>
+                {% include 'delete_modal.html' %}
+            </td>
+        </tr>
+    {% else %}
+        {% for user in users %}
+        <tr>
+            <th scope="row">{{ user.id }}</th>
+            <td>{{ user.name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.is_admin }}</td>
+            <td>{{ user.can_post }}</td>
+            <td class="">
+                <div class="row">
+                    <div class="col">
+                         <a type="button" class="btn btn-primary" href="{{ url_for('users.edit_user', user_id=user.id) }}">Edit
+                </a>
+                    </div>
+                    <div class="col">
+                        <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete{{ user.id }}">Delete</a>
+                    </div>
                 </div>
-            </div>
-            {% include 'delete_modal.html' %}
-        </td>
-    </tr>
-    {% endfor %}
+                {% include 'delete_modal.html' %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% endif %}
     </tbody>
 </table>
 {% endblock %}

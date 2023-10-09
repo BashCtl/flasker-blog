@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 from src import bcrypt, db
 from src.models.user_model import User
-from src.forms.webforms import EditUserForm
+from src.forms.webforms import EditUserForm, SearchForm
 
 
 class UserService:
@@ -54,7 +54,7 @@ class UserService:
             user_to_update.favorite_color = request.form["favorite_color"]
             db.session.commit()
             flash("User Updated Successfully!", category="success")
-            return render_template("update.html", form=form, user_to_update=user_to_update)
+            return redirect(url_for("users.dashboard"))
         else:
             return render_template("update.html", form=form, user_to_update=user_to_update)
 
@@ -112,6 +112,14 @@ class UserService:
         form.can_post.data = user.can_post
         form.is_admin.data = user.is_admin
         return render_template("edit_by_admin.html", form=form, user_id=user_id, user=user)
+
+    @staticmethod
+    def search_user():
+        form = SearchForm()
+        if form.validate_on_submit():
+            username = form.searched.data
+            user = User.query.filter_by(username=username).first()
+            return render_template("admin.html", user=user, search_form=form)
 
     @staticmethod
     def __update_user_field(user_to_update):

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 
-from src.forms.webforms import UserForm, LoginForm, EditUserForm
+from src.forms.webforms import UserForm, LoginForm, EditUserForm, SearchForm
 from src.services.users_service import UserService
 
 users = Blueprint("users", __name__)
@@ -38,8 +38,9 @@ def delete_user(user_id):
 @login_required
 def admin():
     if current_user.is_admin:
+        search_form = SearchForm()
         all_users = UserService.get_all_users()
-        return render_template("admin.html", users=all_users)
+        return render_template("admin.html", users=all_users, search_form=search_form)
     return render_template("403.html")
 
 
@@ -48,6 +49,14 @@ def admin():
 def edit_user(user_id):
     if current_user.is_admin:
         return UserService.edit_by_admin(user_id)
+    return render_template("403.html")
+
+
+@users.route("/admin/search", methods=["GET", "POST"])
+@login_required
+def search_user():
+    if current_user.is_admin:
+        return UserService.search_user()
     return render_template("403.html")
 
 
