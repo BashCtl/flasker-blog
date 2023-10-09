@@ -38,6 +38,18 @@ def client(app):
 
 
 @pytest.fixture()
+def user_data():
+    return {
+        "name": "Bald Dude",
+        "username": "baldy",
+        "email": "bald@test.com",
+        "favorite_color": "Black",
+        "password": "password123",
+        "password_confirm": "password123"
+    }
+
+
+@pytest.fixture()
 def registered_user(app, client):
     user_data = {
         "name": "John Blade",
