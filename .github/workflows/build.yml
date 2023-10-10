@@ -4,9 +4,11 @@ on: [ push, pull_request]
 
 jobs:
   build:
+    environment:
+      name: flasker
     env:
       TEST_DATABASE_URI: ${{secrets.TEST_DATABASE_URI}}
-      SECRET_KEY: ${{secrets.FLASKER_SECRET_KEY}}
+      SECRET_KEY: ${{secrets.SECRET_KEY}}
 
     runs-on: ubuntu-latest
     steps:
